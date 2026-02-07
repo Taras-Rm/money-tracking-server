@@ -7,11 +7,7 @@ import (
 )
 
 type DbConfig struct {
-	Host     string `mapstructure:"host"`
-	Port     string `mapstructure:"port"`
-	Name     string `mapstructure:"name"`
-	Username string `mapstructure:"username"`
-	Password string `mapstructure:"password"`
+	ConnectionUri string `mapstructure:"connection_uri"`
 }
 
 type ServerConfig struct {

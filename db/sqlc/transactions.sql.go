@@ -7,7 +7,8 @@ package sqlc
 
 import (
 	"context"
-	"database/sql"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createTransaction = `-- name: CreateTransaction :one
@@ -26,14 +27,14 @@ RETURNING id, user_id, kind, amount, currency_code, category_id, description, cr
 type CreateTransactionParams struct {
 	UserID       int64
 	Kind         TransactionKind
-	Amount       string
+	Amount       pgtype.Numeric
 	CurrencyCode string
-	CategoryID   sql.NullInt64
-	Description  sql.NullString
+	CategoryID   pgtype.Int8
+	Description  pgtype.Text
 }
 
 func (q *Queries) CreateTransaction(ctx context.Context, arg CreateTransactionParams) (Transaction, error) {
-	row := q.db.QueryRowContext(ctx, createTransaction,
+	row := q.db.QueryRow(ctx, createTransaction,
 		arg.UserID,
 		arg.Kind,
 		arg.Amount,
@@ -62,7 +63,7 @@ WHERE user_id = $1
 `
 
 func (q *Queries) GetAllUserTransactions(ctx context.Context, userID int64) ([]Transaction, error) {
-	rows, err := q.db.QueryContext(ctx, getAllUserTransactions, userID)
+	rows, err := q.db.Query(ctx, getAllUserTransactions, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -83,9 +84,6 @@ func (q *Queries) GetAllUserTransactions(ctx context.Context, userID int64) ([]T
 			return nil, err
 		}
 		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err

@@ -5,10 +5,10 @@
 package sqlc
 
 import (
-	"database/sql"
 	"database/sql/driver"
 	"fmt"
-	"time"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type TransactionKind string
@@ -63,18 +63,18 @@ type Category struct {
 type Currency struct {
 	Code   string
 	Name   string
-	Symbol sql.NullString
+	Symbol pgtype.Text
 }
 
 type Transaction struct {
 	ID           int32
 	UserID       int64
 	Kind         TransactionKind
-	Amount       string
+	Amount       pgtype.Numeric
 	CurrencyCode string
-	CategoryID   sql.NullInt64
-	Description  sql.NullString
-	CreatedAt    time.Time
+	CategoryID   pgtype.Int8
+	Description  pgtype.Text
+	CreatedAt    pgtype.Timestamptz
 }
 
 type User struct {
@@ -82,5 +82,5 @@ type User struct {
 	Name      string
 	Email     string
 	Password  string
-	CreatedAt time.Time
+	CreatedAt pgtype.Timestamptz
 }
