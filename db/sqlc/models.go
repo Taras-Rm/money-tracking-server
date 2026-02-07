@@ -5,8 +5,77 @@
 package sqlc
 
 import (
+	"database/sql"
+	"database/sql/driver"
+	"fmt"
 	"time"
 )
+
+type TransactionKind string
+
+const (
+	TransactionKindIncome       TransactionKind = "income"
+	TransactionKindExpense      TransactionKind = "expense"
+	TransactionKindFixedExpense TransactionKind = "fixed_expense"
+)
+
+func (e *TransactionKind) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = TransactionKind(s)
+	case string:
+		*e = TransactionKind(s)
+	default:
+		return fmt.Errorf("unsupported scan type for TransactionKind: %T", src)
+	}
+	return nil
+}
+
+type NullTransactionKind struct {
+	TransactionKind TransactionKind
+	Valid           bool // Valid is true if TransactionKind is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullTransactionKind) Scan(value interface{}) error {
+	if value == nil {
+		ns.TransactionKind, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.TransactionKind.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullTransactionKind) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.TransactionKind), nil
+}
+
+type Category struct {
+	ID   int32
+	Name string
+	Kind string
+}
+
+type Currency struct {
+	Code   string
+	Name   string
+	Symbol sql.NullString
+}
+
+type Transaction struct {
+	ID           int32
+	UserID       int64
+	Kind         TransactionKind
+	Amount       string
+	CurrencyCode string
+	CategoryID   sql.NullInt64
+	Description  sql.NullString
+	CreatedAt    time.Time
+}
 
 type User struct {
 	ID        int32
