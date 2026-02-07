@@ -6,8 +6,10 @@ import (
 
 	"github.com/Taras-Rm/money-tracker-server/db/sqlc"
 	"github.com/Taras-Rm/money-tracker-server/internal/config"
+	"github.com/Taras-Rm/money-tracker-server/internal/handlers"
+	"github.com/Taras-Rm/money-tracker-server/internal/services"
 	"github.com/Taras-Rm/money-tracker-server/internal/setup"
-	"github.com/gin-gonic/gin"
+	"github.com/Taras-Rm/money-tracker-server/pkg/hasher"
 	"github.com/jackc/pgx/v5"
 )
 
@@ -31,9 +33,16 @@ func Run() {
 
 	fmt.Println(user)
 
-	router := gin.Default()
+	hasher := hasher.NewHasher(14)
 
-	server := setup.NewServer(config.ServerConfig.Port, router)
+	services := services.NewServices(services.Dependencies{
+		Db:     queries,
+		Hasher: hasher,
+	})
+
+	handlers := handlers.NewHandlers(services)
+
+	server := setup.NewServer(config.ServerConfig.Port, handlers.InitHandlers())
 
 	server.Start()
 }
