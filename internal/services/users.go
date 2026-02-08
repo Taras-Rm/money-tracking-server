@@ -2,9 +2,12 @@ package services
 
 import (
 	"context"
+	"errors"
 
 	"github.com/Taras-Rm/money-tracker-server/db/sqlc"
+	"github.com/Taras-Rm/money-tracker-server/internal/services/models"
 	"github.com/Taras-Rm/money-tracker-server/pkg/hasher"
+	"github.com/jackc/pgx/v5"
 )
 
 type userService struct {
@@ -20,11 +23,25 @@ func NewUsersService(q *sqlc.Queries, hasher *hasher.Hasher) Users {
 	}
 }
 
-func (s *userService) CreateNewUser(ctx context.Context, user interface{}) (interface{}, error) {
-	// hashedPassword, err := s.hasher.HashPassword(user)
-	// if err != nil {
-	// 	return nil, err
-	// }
+func (s *userService) CreateUser(ctx context.Context, userData models.CreateUserInput) (interface{}, error) {
+	hashedPassword, err := s.hasher.HashPassword(userData.Password)
+	if err != nil {
+		return nil, err
+	}
 
-	return nil, nil
+	_, err = s.q.GetUserByEmail(ctx, userData.Email)
+	if err == nil {
+		return nil, errors.New("user we such email already exists")
+	}
+	if !errors.Is(err, pgx.ErrNoRows) {
+		return nil, err
+	}
+
+	user, err := s.q.CreateUser(ctx, sqlc.CreateUserParams{
+		Name:     userData.Name,
+		Email:    userData.Email,
+		Password: hashedPassword,
+	})
+
+	return user, nil
 }
