@@ -7,9 +7,8 @@ import (
 
 func ToUserDTO(u sqlc.User) dto.UserDTO {
 	return dto.UserDTO{
-		ID:        int64(u.ID),
-		Name:      u.Name,
-		Email:     u.Email,
-		CreatedAt: u.CreatedAt.Time,
+		ID:    int64(u.ID),
+		Name:  u.Name,
+		Email: u.Email,
 	}
 }

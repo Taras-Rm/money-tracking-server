@@ -4,12 +4,13 @@ import (
 	"context"
 
 	"github.com/Taras-Rm/money-tracker-server/db/sqlc"
+	"github.com/Taras-Rm/money-tracker-server/internal/dto"
 	"github.com/Taras-Rm/money-tracker-server/internal/services/models"
 	"github.com/Taras-Rm/money-tracker-server/pkg/hasher"
 )
 
 type Users interface {
-	CreateUser(ctx context.Context, user models.CreateUserInput) (interface{}, error)
+	CreateUser(ctx context.Context, user models.CreateUserInput) (*dto.UserDTO, error)
 }
 
 type Dependencies struct {

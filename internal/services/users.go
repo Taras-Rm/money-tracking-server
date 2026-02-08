@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/Taras-Rm/money-tracker-server/db/sqlc"
+	"github.com/Taras-Rm/money-tracker-server/internal/dto"
 	"github.com/Taras-Rm/money-tracker-server/internal/services/models"
 	"github.com/Taras-Rm/money-tracker-server/pkg/hasher"
 	"github.com/jackc/pgx/v5"
@@ -23,7 +24,7 @@ func NewUsersService(q *sqlc.Queries, hasher *hasher.Hasher) Users {
 	}
 }
 
-func (s *userService) CreateUser(ctx context.Context, userData models.CreateUserInput) (interface{}, error) {
+func (s *userService) CreateUser(ctx context.Context, userData models.CreateUserInput) (*dto.UserDTO, error) {
 	hashedPassword, err := s.hasher.HashPassword(userData.Password)
 	if err != nil {
 		return nil, err
@@ -43,5 +44,7 @@ func (s *userService) CreateUser(ctx context.Context, userData models.CreateUser
 		Password: hashedPassword,
 	})
 
-	return user, nil
+	userDTO := ToUserDTO(user)
+
+	return &userDTO, nil
 }

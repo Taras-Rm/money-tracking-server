@@ -35,6 +35,6 @@ func registration(usersService services.Users) gin.HandlerFunc {
 			return
 		}
 
-		c.JSON(http.StatusCreated, gin.H{"user": user})
+		c.JSON(http.StatusCreated, user)
 	}
 }
