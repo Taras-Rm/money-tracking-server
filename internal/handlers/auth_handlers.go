@@ -13,6 +13,8 @@ func InjectAuthHandlers(gr *gin.RouterGroup, usersService services.Users) {
 	handler := gr.Group("/auth")
 
 	handler.POST("/register", registration(usersService))
+	handler.POST("/login", login(usersService))
+
 }
 
 func registration(usersService services.Users) gin.HandlerFunc {
@@ -36,5 +38,28 @@ func registration(usersService services.Users) gin.HandlerFunc {
 		}
 
 		c.JSON(http.StatusCreated, user)
+	}
+}
+
+func login(usersService services.Users) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var req dto.LoginRequest
+
+		err := c.BindJSON(&req)
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "invalid request body"})
+			return
+		}
+
+		token, err := usersService.LoginUser(c, models.LoginUserInput{
+			Email:    req.Email,
+			Password: req.Password,
+		})
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+			return
+		}
+
+		c.JSON(http.StatusCreated, token)
 	}
 }

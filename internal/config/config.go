@@ -2,6 +2,7 @@ package config
 
 import (
 	"log"
+	"time"
 
 	"github.com/spf13/viper"
 )
@@ -14,9 +15,15 @@ type ServerConfig struct {
 	Port string `mapstructure:"port"`
 }
 
+type AuthConfig struct {
+	Ttl    time.Duration `mapstructure:"ttl"`
+	Secret string        `mapstructure:"secret"`
+}
+
 type AppConfig struct {
 	DbConfig     DbConfig     `mapstructure:"db"`
 	ServerConfig ServerConfig `mapstructure:"server"`
+	AuthConfig   AuthConfig   `mapstructure:"auth"`
 }
 
 var Config AppConfig
