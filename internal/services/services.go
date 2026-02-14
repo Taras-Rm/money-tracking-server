@@ -13,6 +13,7 @@ import (
 
 type Users interface {
 	CreateUser(ctx context.Context, userData models.CreateUserInput) (*dto.UserDTO, error)
+	RegisterUser(ctx context.Context, userData models.CreateUserInput) (string, error)
 	LoginUser(ctx context.Context, loginData models.LoginUserInput) (string, error)
 	LoginUserWithGoogle(ctx context.Context, loginData models.LoginUserWithGoogleInput) (string, error)
 }

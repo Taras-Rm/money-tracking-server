@@ -27,7 +27,7 @@ func registration(usersService services.Users) gin.HandlerFunc {
 			return
 		}
 
-		user, err := usersService.CreateUser(c, models.CreateUserInput{
+		token, err := usersService.RegisterUser(c, models.CreateUserInput{
 			Name:     req.Name,
 			Email:    req.Email,
 			Password: req.Password,
@@ -37,7 +37,7 @@ func registration(usersService services.Users) gin.HandlerFunc {
 			return
 		}
 
-		c.JSON(http.StatusCreated, user)
+		c.JSON(http.StatusCreated, gin.H{"token": token})
 	}
 }
 

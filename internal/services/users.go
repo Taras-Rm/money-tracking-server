@@ -50,10 +50,45 @@ func (s *userService) CreateUser(ctx context.Context, userData models.CreateUser
 		Email:    userData.Email,
 		Password: hashedPassword,
 	})
+	if err != nil {
+		return nil, err
+	}
 
 	userDTO := ToUserDTO(user)
 
 	return &userDTO, nil
+}
+
+func (s *userService) RegisterUser(ctx context.Context, userData models.CreateUserInput) (string, error) {
+	hashedPassword, err := s.hasher.HashPassword(userData.Password)
+	if err != nil {
+		return "", err
+	}
+
+	_, err = s.q.GetUserByEmail(ctx, userData.Email)
+	if err == nil {
+		return "", errors.New("user with such email already exists")
+	}
+	if !errors.Is(err, pgx.ErrNoRows) {
+		return "", err
+	}
+
+	user, err := s.q.CreateUser(ctx, sqlc.CreateUserParams{
+		Name:     userData.Name,
+		Email:    userData.Email,
+		Password: hashedPassword,
+	})
+	if err != nil {
+		return "", err
+	}
+
+	// Generate token for the newly registered user
+	token, err := s.tokenManager.NewToken(int64(user.ID))
+	if err != nil {
+		return "", fmt.Errorf("failed to generate token: %w", err)
+	}
+
+	return token, nil
 }
 
 func (s *userService) LoginUser(ctx context.Context, loginData models.LoginUserInput) (string, error) {
