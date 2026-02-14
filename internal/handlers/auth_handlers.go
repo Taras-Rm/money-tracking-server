@@ -6,15 +6,18 @@ import (
 	"github.com/Taras-Rm/money-tracker-server/internal/dto"
 	"github.com/Taras-Rm/money-tracker-server/internal/services"
 	"github.com/Taras-Rm/money-tracker-server/internal/services/models"
+	"github.com/Taras-Rm/money-tracker-server/pkg/token"
 	"github.com/gin-gonic/gin"
 )
 
-func InjectAuthHandlers(gr *gin.RouterGroup, usersService services.Users) {
+func InjectAuthHandlers(gr *gin.RouterGroup, usersService services.Users, tokenManager *token.TokenManager) {
 	handler := gr.Group("/auth")
 
 	handler.POST("/register", registration(usersService))
 	handler.POST("/login", login(usersService))
 	handler.POST("/login-with-google", loginWithGoogle(usersService))
+
+	handler.GET("/me", authMiddleware(tokenManager), me(usersService))
 }
 
 func registration(usersService services.Users) gin.HandlerFunc {
@@ -88,5 +91,30 @@ func loginWithGoogle(usersService services.Users) gin.HandlerFunc {
 		}
 
 		c.JSON(http.StatusOK, gin.H{"token": token})
+	}
+}
+
+func me(usersService services.Users) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Get user ID from context (set by authMiddleware)
+		userId, exists := c.Get(UserIDKey)
+		if !exists {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": "user ID not found in context"})
+			return
+		}
+
+		userIdInt64, ok := userId.(int64)
+		if !ok {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": "invalid user ID type"})
+			return
+		}
+
+		user, err := usersService.GetUserByID(c, userIdInt64)
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{"user": user})
 	}
 }

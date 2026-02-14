@@ -148,3 +148,17 @@ func (s *userService) LoginUserWithGoogle(ctx context.Context, loginData models.
 
 	return token, nil
 }
+
+func (s *userService) GetUserByID(ctx context.Context, userId int64) (*dto.UserDTO, error) {
+	user, err := s.q.GetUserById(ctx, int32(userId))
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, errors.New("user not found")
+		}
+		return nil, err
+	}
+
+	userDTO := ToUserDTO(user)
+
+	return &userDTO, nil
+}

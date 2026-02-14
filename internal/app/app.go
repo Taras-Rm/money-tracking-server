@@ -46,7 +46,7 @@ func Run() {
 		OAuthManager: oauthManager,
 	})
 
-	handlers := handlers.NewHandlers(services)
+	handlers := handlers.NewHandlers(services, tokenManager)
 
 	server := setup.NewServer(config.ServerConfig.Port, handlers.InitHandlers())
 

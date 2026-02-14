@@ -16,6 +16,7 @@ type Users interface {
 	RegisterUser(ctx context.Context, userData models.CreateUserInput) (string, error)
 	LoginUser(ctx context.Context, loginData models.LoginUserInput) (string, error)
 	LoginUserWithGoogle(ctx context.Context, loginData models.LoginUserWithGoogleInput) (string, error)
+	GetUserByID(ctx context.Context, userId int64) (*dto.UserDTO, error)
 }
 
 type Dependencies struct {

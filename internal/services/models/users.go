@@ -14,3 +14,7 @@ type LoginUserInput struct {
 type LoginUserWithGoogleInput struct {
 	AccessToken string
 }
+
+type GetMeInput struct {
+	AccessToken string
+}

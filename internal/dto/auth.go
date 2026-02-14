@@ -14,3 +14,7 @@ type LoginRequest struct {
 type LoginWithGoogleRequest struct {
 	AccessToken string `json:"access_token"`
 }
+
+type MeRequest struct {
+	AccessToken string `json:"access_token"`
+}
