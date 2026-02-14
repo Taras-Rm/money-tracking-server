@@ -10,6 +10,7 @@ import (
 	"github.com/Taras-Rm/money-tracker-server/internal/services"
 	"github.com/Taras-Rm/money-tracker-server/internal/setup"
 	"github.com/Taras-Rm/money-tracker-server/pkg/hasher"
+	"github.com/Taras-Rm/money-tracker-server/pkg/oauth"
 	"github.com/Taras-Rm/money-tracker-server/pkg/token"
 	"github.com/jackc/pgx/v5"
 )
@@ -36,11 +37,13 @@ func Run() {
 
 	hasher := hasher.NewHasher(14)
 	tokenManager := token.NewTokenManager(config.AuthConfig.Secret, config.AuthConfig.Ttl)
+	oauthManager := oauth.NewOAuthManager(config.OAuthConfig.GoogleApiUrl)
 
 	services := services.NewServices(services.Dependencies{
 		Db:           queries,
 		Hasher:       hasher,
 		TokenManager: tokenManager,
+		OAuthManager: oauthManager,
 	})
 
 	handlers := handlers.NewHandlers(services)

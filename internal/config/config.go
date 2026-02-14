@@ -20,10 +20,15 @@ type AuthConfig struct {
 	Secret string        `mapstructure:"secret"`
 }
 
+type OAuthConfig struct {
+	GoogleApiUrl string `mapstructure:"google_api_url"`
+}
+
 type AppConfig struct {
 	DbConfig     DbConfig     `mapstructure:"db"`
 	ServerConfig ServerConfig `mapstructure:"server"`
 	AuthConfig   AuthConfig   `mapstructure:"auth"`
+	OAuthConfig  OAuthConfig  `mapstructure:"oauth"`
 }
 
 var Config AppConfig

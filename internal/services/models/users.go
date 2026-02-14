@@ -10,3 +10,7 @@ type LoginUserInput struct {
 	Email    string
 	Password string
 }
+
+type LoginUserWithGoogleInput struct {
+	AccessToken string
+}

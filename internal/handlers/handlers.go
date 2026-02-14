@@ -18,7 +18,7 @@ func NewHandlers(services *services.Services) *Handlers {
 func (h *Handlers) InitHandlers() *gin.Engine {
 	router := gin.Default()
 
-	router.Use(gin.Recovery(), gin.Logger())
+	router.Use(gin.Recovery(), gin.Logger(), corsMiddleware)
 
 	api := router.Group("/api")
 
